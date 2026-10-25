@@ -10,6 +10,7 @@ export interface ScenarioSummary {
   confidence: number;
   status: "BLOCKED" | "APPROVED" | "UNCERTAIN";
   file_path: string;
+  language?: "python" | "typescript";
 }
 
 export interface ScenarioDetail extends ScenarioSummary {
@@ -22,6 +23,7 @@ export interface ScenarioDetail extends ScenarioSummary {
   fixed_code: string;
   test_code: string;
   diff: string;
+  unresolved_risks?: string[];
 }
 
 export interface TestExecutionResult {
@@ -42,4 +44,7 @@ export interface VerifyResponse {
   patched_result: TestExecutionResult;
   verification_badge: "VERIFIED_FIX" | "FIX_FAILED" | "ALL_PASS" | "UNCERTAIN";
   explanation: string;
+  what_passed?: string[];
+  what_failed?: string[];
+  what_uncertain?: string[];
 }

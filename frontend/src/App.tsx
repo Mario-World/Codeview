@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Navbar } from './components/Navbar';
 import { ReviewCards } from './components/ReviewCards';
 import { DiffViewer } from './components/DiffViewer';
 import { CustomPRModal } from './components/CustomPRModal';
+import { ReportModal } from './components/ReportModal';
 import { ScenarioSummary, ScenarioDetail, VerifyResponse } from './types';
 import { 
   ChevronDown, 
@@ -11,9 +13,11 @@ import {
   Check, 
   MoreHorizontal, 
   ShieldCheck, 
+  FileText,
   Copy, 
   CheckCircle2,
-  FileCode
+  FileCode,
+  Zap
 } from 'lucide-react';
 
 export const App: React.FC = () => {
@@ -26,6 +30,7 @@ export const App: React.FC = () => {
   const [activeSubTab, setActiveSubTab] = useState<'active' | 'reviewed'>('active');
   const [scenarioDropdownOpen, setScenarioDropdownOpen] = useState<boolean>(false);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [isReportOpen, setIsReportOpen] = useState<boolean>(false);
   const [isLoadingPR, setIsLoadingPR] = useState<boolean>(false);
   const [copiedPatch, setCopiedPatch] = useState<boolean>(false);
 
@@ -68,6 +73,7 @@ export const App: React.FC = () => {
           patched_code: scenarioDetail.fixed_code,
           test_code: scenarioDetail.test_code,
           file_path: scenarioDetail.file_path,
+          language: scenarioDetail.language || 'python',
         }),
       });
 
@@ -160,7 +166,7 @@ export const App: React.FC = () => {
       }}>
         {/* Left Controls */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          {/* Active Finding / Reviewed Toggle */}
+          {/* Active Finding / Reviewed Toggle with Framer Motion layout */}
           <div style={{ display: 'flex', background: 'rgba(255, 255, 255, 0.05)', borderRadius: 6, padding: 2 }}>
             <button
               onClick={() => setActiveSubTab('active')}
@@ -201,7 +207,7 @@ export const App: React.FC = () => {
               className="btn btn-outline"
               style={{ padding: '4px 10px', fontSize: '0.75rem', gap: 4 }}
             >
-              <span>Scenario: <strong style={{ color: '#ffffff' }}>{scenarioDetail ? scenarioDetail.id.replace('_', ' ').toUpperCase() : 'SELECT'}</strong></span>
+              <span>Scenario: <strong style={{ color: '#ffffff' }}>{scenarioDetail ? scenarioDetail.id.replace('ts_', 'TS ').replace('_', ' ').toUpperCase() : 'SELECT'}</strong></span>
               <ChevronDown size={12} />
             </button>
 
@@ -215,7 +221,7 @@ export const App: React.FC = () => {
                 border: '1px solid var(--border-medium)',
                 borderRadius: 8,
                 padding: 4,
-                width: 220,
+                width: 250,
                 boxShadow: '0 10px 30px rgba(0,0,0,0.5)',
                 zIndex: 50
               }}>
@@ -242,8 +248,10 @@ export const App: React.FC = () => {
                       justifyContent: 'space-between'
                     }}
                   >
-                    <span>{s.title.substring(0, 24)}...</span>
-                    <span style={{ fontSize: '0.68rem', color: 'var(--text-dim)' }}>#{s.pr_number}</span>
+                    <span>{s.title.substring(0, 26)}...</span>
+                    <span style={{ fontSize: '0.68rem', color: s.language === 'typescript' ? '#38bdf8' : 'var(--text-dim)' }}>
+                      {s.language === 'typescript' ? 'TS' : 'Py'} #{s.pr_number}
+                    </span>
                   </button>
                 ))}
 
@@ -288,25 +296,38 @@ export const App: React.FC = () => {
           )}
         </div>
 
-        {/* Right Navigation Controls */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <button
-            onClick={handlePrevScenario}
-            className="btn btn-outline"
-            style={{ padding: '4px 8px', fontSize: '0.72rem' }}
-          >
-            <ChevronLeft size={12} />
-            <span>Prev</span>
-          </button>
+        {/* Right Navigation & Report Controls */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          {scenarioDetail && (
+            <button
+              onClick={() => setIsReportOpen(true)}
+              className="btn btn-outline"
+              style={{ padding: '4px 10px', fontSize: '0.75rem', gap: 5, color: '#a5b4fc', borderColor: 'var(--border-accent)' }}
+            >
+              <FileText size={12} />
+              <span>Readiness Report</span>
+            </button>
+          )}
 
-          <button
-            onClick={handleNextScenario}
-            className="btn btn-outline"
-            style={{ padding: '4px 8px', fontSize: '0.72rem' }}
-          >
-            <span>Next</span>
-            <ChevronRight size={12} />
-          </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+            <button
+              onClick={handlePrevScenario}
+              className="btn btn-outline"
+              style={{ padding: '4px 8px', fontSize: '0.72rem' }}
+            >
+              <ChevronLeft size={12} />
+              <span>Prev</span>
+            </button>
+
+            <button
+              onClick={handleNextScenario}
+              className="btn btn-outline"
+              style={{ padding: '4px 8px', fontSize: '0.72rem' }}
+            >
+              <span>Next</span>
+              <ChevronRight size={12} />
+            </button>
+          </div>
         </div>
       </div>
 
@@ -326,6 +347,7 @@ export const App: React.FC = () => {
             verifyResponse={verifyResponse}
             isVerifying={isVerifying}
             onVerify={handleVerify}
+            onOpenReport={() => setIsReportOpen(true)}
           />
 
           {/* Right Column: Fix Title & Code Diff Window */}
@@ -338,14 +360,24 @@ export const App: React.FC = () => {
               marginBottom: 12,
               flexShrink: 0
             }}>
-              <h1 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#ffffff', letterSpacing: '-0.02em' }}>
-                {scenarioDetail.pr_title}
-              </h1>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <h1 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#ffffff', letterSpacing: '-0.02em' }}>
+                  {scenarioDetail.pr_title}
+                </h1>
+                <span className="badge-pill badge-dark" style={{ textTransform: 'uppercase' }}>
+                  {scenarioDetail.language || 'python'}
+                </span>
+              </div>
 
               {/* Action Buttons */}
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <button className="btn btn-outline" style={{ padding: '6px 8px' }}>
-                  <MoreHorizontal size={16} />
+                <button
+                  onClick={() => setIsReportOpen(true)}
+                  className="btn btn-outline"
+                  style={{ padding: '7px 12px', fontSize: '0.8rem', gap: 5 }}
+                >
+                  <FileText size={13} />
+                  <span>Report</span>
                 </button>
 
                 <button
@@ -391,6 +423,16 @@ export const App: React.FC = () => {
         <div style={{ flexGrow: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div className="anim-spin" style={{ width: 28, height: 28, border: '2px solid var(--accent)', borderTopColor: 'transparent', borderRadius: '50%' }} />
         </div>
+      )}
+
+      {/* Production Readiness Report Modal (Framer Motion) */}
+      {scenarioDetail && (
+        <ReportModal
+          isOpen={isReportOpen}
+          onClose={() => setIsReportOpen(false)}
+          scenario={scenarioDetail}
+          verifyResponse={verifyResponse}
+        />
       )}
 
       {/* Custom PR Modal */}
