@@ -1,0 +1,20 @@
+{
+  "id": "auth_idor",
+  "title": "Missing Tenant Authorization (BOLA / IDOR) on Invoice Deletion",
+  "repo_name": "acme-corp/billing-service",
+  "pr_number": 142,
+  "pr_title": "feat: add invoice deletion handler for dashboard",
+  "pr_author": "copilot-agent[bot]",
+  "category": "Security & Multi-Tenancy",
+  "severity": "CRITICAL",
+  "confidence": 98,
+  "status": "BLOCKED",
+  "file_path": "api/routers/billing.py",
+  "line_start": 23,
+  "line_end": 35,
+  "summary": "AI generated endpoint allows any authenticated caller to delete any invoice regardless of organizational tenancy boundary.",
+  "impact": "Exploitable IDOR vulnerability (OWASP API1:2023 Broken Object Level Authorization). An attacker with an org_beta account can wipe all invoices and financial audit logs of enterprise customers in org_alpha.",
+  "root_cause": "The handler obtains `invoice` by `invoice_id`, checks for existence, but immediately executes `del INVOICES_DB[invoice_id]` without validating `invoice.org_id == current_user.org_id`.",
+  "proposed_fix_summary": "Add strict multi-tenant ownership guard: raise 403 Forbidden if `invoice.org_id != current_user.org_id`.",
+  "test_file": "tests/test_billing_security.py"
+}

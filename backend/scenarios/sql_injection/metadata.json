@@ -1,0 +1,20 @@
+{
+  "id": "sql_injection",
+  "title": "SQL Injection (CWE-89) in Tenant User Search Query",
+  "repo_name": "saas-core/directory-service",
+  "pr_number": 215,
+  "pr_title": "feat(search): dynamic user lookup for workspace directory",
+  "pr_author": "ai-code-assist[bot]",
+  "category": "Security & Injection Prevention",
+  "severity": "CRITICAL",
+  "confidence": 99,
+  "status": "BLOCKED",
+  "file_path": "repositories/user_repo.py",
+  "line_start": 28,
+  "line_end": 35,
+  "summary": "AI generated database query uses direct python f-string interpolation into a raw SQL query string without escaping or binding parameters.",
+  "impact": "Data Exfiltration & Compliance Breach (CWE-89): Attackers can supply SQL injection escape sequences to bypass tenant isolation and dump passwords, API keys, and sensitive enterprise credentials.",
+  "root_cause": "String interpolation `raw_sql = f\"... '{search_query}'\"` executes unchecked user input inside the SQL parser.",
+  "proposed_fix_summary": "Replace raw SQL string formatting with parameterized query bindings (`?` or named parameters).",
+  "test_file": "tests/test_user_repository.py"
+}

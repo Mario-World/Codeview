@@ -1,0 +1,20 @@
+{
+  "id": "logic_discount",
+  "title": "Unbounded Discount Stack Produces Negative Order Total",
+  "repo_name": "payflow-checkout/order-service",
+  "pr_number": 89,
+  "pr_title": "feat(pricing): add VIP membership flat reduction to cart checkout",
+  "pr_author": "developer-ai-bot",
+  "category": "Financial Logic & Invariants",
+  "severity": "HIGH",
+  "confidence": 95,
+  "status": "BLOCKED",
+  "file_path": "services/pricing.py",
+  "line_start": 18,
+  "line_end": 32,
+  "summary": "AI generated checkout pricing calculates VIP discounts without capping against the cart subtotal, causing negative credit totals.",
+  "impact": "Direct Financial Exploit: Customers ordering low-value goods (<$30) receive negative checkout totals, resulting in gateway transaction errors or unintended payment reversal credits.",
+  "root_cause": "The code does `total = subtotal - discount` without enforcing `discount = min(discount, subtotal)` or `total = max(0.0, total)`.",
+  "proposed_fix_summary": "Cap cumulative discount to subtotal and bound total charged to a minimum of 0.00.",
+  "test_file": "tests/test_pricing_engine.py"
+}
