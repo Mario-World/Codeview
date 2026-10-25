@@ -1,33 +1,35 @@
 :root {
-  --bg-app: #090d16;
-  --bg-surface: #0f172a;
-  --bg-surface-elevated: #131d35;
-  --bg-subtle: rgba(255, 255, 255, 0.03);
+  --bg-app: #080c14;
+  --bg-nav: #0b101b;
+  --bg-card: #0e1524;
+  --bg-card-hover: #131c30;
+  --bg-editor: #090e18;
   
-  --border-subtle: rgba(255, 255, 255, 0.08);
-  --border-medium: rgba(255, 255, 255, 0.14);
+  --border-subtle: rgba(255, 255, 255, 0.07);
+  --border-medium: rgba(255, 255, 255, 0.12);
   --border-accent: rgba(99, 102, 241, 0.4);
 
   --accent: #6366f1;
   --accent-hover: #4f46e5;
 
   --color-success: #10b981;
-  --color-success-bg: rgba(16, 185, 129, 0.1);
-  --color-success-border: rgba(16, 185, 129, 0.3);
+  --color-success-hover: #059669;
+  --color-success-bg: rgba(16, 185, 129, 0.14);
+  --color-success-border: rgba(16, 185, 129, 0.35);
 
   --color-danger: #f43f5e;
-  --color-danger-bg: rgba(244, 63, 94, 0.1);
-  --color-danger-border: rgba(244, 63, 94, 0.3);
+  --color-danger-bg: rgba(244, 63, 94, 0.14);
+  --color-danger-border: rgba(244, 63, 94, 0.35);
 
   --color-warning: #f59e0b;
-  --color-warning-bg: rgba(245, 158, 11, 0.1);
+  --color-warning-bg: rgba(245, 158, 11, 0.14);
 
   --text-main: #f8fafc;
   --text-muted: #94a3b8;
   --text-dim: #64748b;
 
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
 }
 
 * {
@@ -40,7 +42,8 @@ body {
   font-family: var(--font-sans);
   background-color: var(--bg-app);
   color: var(--text-main);
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
 }
@@ -51,21 +54,23 @@ body {
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--bg-app);
+  background: var(--bg-editor);
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.15);
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.25);
 }
 
 /* Card & Panels */
-.card {
-  background: var(--bg-surface);
+.panel-card {
+  background: var(--bg-card);
   border: 1px solid var(--border-subtle);
-  border-radius: 8px;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
 }
 
 /* Buttons */
@@ -74,10 +79,10 @@ body {
   align-items: center;
   justify-content: center;
   gap: 6px;
-  padding: 7px 14px;
+  padding: 6px 14px;
   border-radius: 6px;
   font-size: 0.82rem;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.15s ease;
   border: 1px solid transparent;
@@ -87,7 +92,7 @@ body {
 
 .btn-primary {
   background: var(--accent);
-  color: white;
+  color: #ffffff;
   border-color: var(--accent);
 }
 .btn-primary:hover {
@@ -96,102 +101,136 @@ body {
 
 .btn-success {
   background: var(--color-success);
-  color: white;
+  color: #ffffff;
   border-color: var(--color-success);
+  box-shadow: 0 2px 10px rgba(16, 185, 129, 0.25);
 }
 .btn-success:hover {
-  background: #059669;
+  background: var(--color-success-hover);
 }
 
 .btn-outline {
-  background: transparent;
-  color: var(--text-muted);
-  border-color: var(--border-subtle);
-}
-.btn-outline:hover {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.04);
   color: var(--text-main);
   border-color: var(--border-medium);
 }
+.btn-outline:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.25);
+}
 
 /* Badges */
-.badge {
+.badge-pill {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 2px 8px;
-  border-radius: 4px;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: 9999px;
   font-size: 0.72rem;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.02em;
 }
 
 .badge-critical {
   background: var(--color-danger-bg);
-  color: var(--color-danger);
+  color: #fb7185;
   border: 1px solid var(--color-danger-border);
 }
 
 .badge-success {
   background: var(--color-success-bg);
-  color: var(--color-success);
+  color: #34d399;
   border: 1px solid var(--color-success-border);
 }
 
-.badge-muted {
-  background: rgba(255, 255, 255, 0.05);
+.badge-dark {
+  background: rgba(255, 255, 255, 0.06);
   color: var(--text-muted);
   border: 1px solid var(--border-subtle);
 }
 
-/* Diff formatting */
-.diff-container {
+/* Syntax Colored Diff */
+.diff-code-table {
+  width: 100%;
   font-family: var(--font-mono);
   font-size: 0.8rem;
   line-height: 1.6;
-  background: #070a12;
-  border-radius: 6px;
-  border: 1px solid var(--border-subtle);
-  overflow-x: auto;
+  border-collapse: collapse;
 }
 
-.diff-row {
+.diff-line {
   display: flex;
+  align-items: stretch;
 }
 
-.diff-num {
-  width: 40px;
+.diff-line:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.diff-num-cell {
+  width: 44px;
+  padding-right: 12px;
   text-align: right;
-  padding-right: 10px;
   color: var(--text-dim);
   user-select: none;
   flex-shrink: 0;
   border-right: 1px solid rgba(255, 255, 255, 0.06);
 }
 
-.diff-text {
-  padding-left: 10px;
+.diff-text-cell {
+  padding-left: 12px;
   white-space: pre;
   flex-grow: 1;
+  color: #cbd5e1;
 }
 
-.diff-add {
-  background: rgba(16, 185, 129, 0.12);
-  color: #34d399;
+/* Line Highlighting */
+.diff-row-deleted {
+  background: rgba(244, 63, 94, 0.16);
 }
-.diff-add .diff-num {
-  color: #10b981;
+.diff-row-deleted .diff-num-cell {
+  color: var(--color-danger);
+  background: rgba(244, 63, 94, 0.1);
 }
-
-.diff-del {
-  background: rgba(244, 63, 94, 0.12);
-  color: #fb7185;
-}
-.diff-del .diff-num {
-  color: #f43f5e;
+.diff-row-deleted .diff-text-cell {
+  color: #fecdd3;
 }
 
-/* Spin animation */
+.diff-row-added {
+  background: rgba(16, 185, 129, 0.16);
+}
+.diff-row-added .diff-num-cell {
+  color: var(--color-success);
+  background: rgba(16, 185, 129, 0.1);
+}
+.diff-row-added .diff-text-cell {
+  color: #a7f3d0;
+}
+
+/* Syntax Tokens */
+.syn-kw { color: #c084fc; font-weight: 600; }     /* def, return, if, raise, from, import */
+.syn-fn { color: #60a5fa; }                       /* function names */
+.syn-str { color: #fde047; }                      /* strings */
+.syn-type { color: #38bdf8; }                     /* types */
+.syn-comment { color: #64748b; font-style: italic; } /* comments */
+.syn-op { color: #f472b6; }                       /* !=, ==, = */
+
+/* Progress bars */
+.test-bar {
+  height: 4px;
+  border-radius: 2px;
+  width: 100%;
+}
+.test-bar-red {
+  background: linear-gradient(90deg, #f43f5e 0%, #fb7185 100%);
+  box-shadow: 0 0 8px rgba(244, 63, 94, 0.4);
+}
+.test-bar-green {
+  background: linear-gradient(90deg, #10b981 0%, #34d399 100%);
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.4);
+}
+
+/* Spinner */
 @keyframes spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
