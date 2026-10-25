@@ -57,11 +57,21 @@ def get_scenario(scenario_id: str):
 @app.post("/api/verify", response_model=VerifyResponse)
 def verify_code(req: VerifyRequest):
     try:
+        unresolved_risks = None
+        lang = req.language or "python"
+        if req.scenario_id:
+            detail = get_scenario_detail(req.scenario_id)
+            if detail:
+                unresolved_risks = detail.unresolved_risks
+                lang = detail.language
+
         result = execute_verification(
             original_code=req.original_code,
             patched_code=req.patched_code,
             test_code=req.test_code,
-            scenario_id=req.scenario_id
+            scenario_id=req.scenario_id,
+            language=lang,
+            unresolved_risks=unresolved_risks
         )
         return result
     except Exception as e:

@@ -42,15 +42,14 @@ def list_all_scenarios() -> List[ScenarioSummary]:
                 severity=data["severity"],
                 confidence=data["confidence"],
                 status=data["status"],
-                file_path=data["file_path"]
+                file_path=data["file_path"],
+                language=data.get("language", "python")
             ))
     return results
 
 def get_scenario_detail(scenario_id: str) -> Optional[ScenarioDetail]:
     scenario_path = os.path.join(SCENARIOS_DIR, scenario_id)
     meta_path = os.path.join(scenario_path, "metadata.json")
-    orig_path = os.path.join(scenario_path, "original.py")
-    fixed_path = os.path.join(scenario_path, "fixed.py")
 
     if not os.path.exists(meta_path):
         return None
@@ -58,21 +57,37 @@ def get_scenario_detail(scenario_id: str) -> Optional[ScenarioDetail]:
     with open(meta_path, "r", encoding="utf-8") as f:
         meta = json.load(f)
 
+    # Check for .py or .ts
+    orig_path = os.path.join(scenario_path, "original.py")
+    if not os.path.exists(orig_path):
+        orig_path = os.path.join(scenario_path, "original.ts")
+
+    fixed_path = os.path.join(scenario_path, "fixed.py")
+    if not os.path.exists(fixed_path):
+        fixed_path = os.path.join(scenario_path, "fixed.ts")
+
     with open(orig_path, "r", encoding="utf-8") as f:
         orig_code = f.read()
 
     with open(fixed_path, "r", encoding="utf-8") as f:
         fixed_code = f.read()
 
-    # Find test file
+    # Find test file (.py or .js)
     test_code = ""
     for f in os.listdir(scenario_path):
-        if f.startswith("test_") and f.endswith(".py"):
+        if (f.startswith("test_") or f.endswith(".test.js")) and (f.endswith(".py") or f.endswith(".js")):
             with open(os.path.join(scenario_path, f), "r", encoding="utf-8") as tf:
                 test_code = tf.read()
             break
 
     diff = compute_diff(orig_code, fixed_code, meta.get("file_path", "solution.py"))
+
+    # Unresolved risks
+    unresolved_risks = meta.get("unresolved_risks", [
+        "Downstream caller side-effects across distributed workers require regression check.",
+        "Production database index performance and memory footprint under high traffic.",
+        "Session invalidation propagation across distributed edge caches."
+    ])
 
     return ScenarioDetail(
         id=meta["id"],
@@ -86,6 +101,7 @@ def get_scenario_detail(scenario_id: str) -> Optional[ScenarioDetail]:
         confidence=meta["confidence"],
         status=meta["status"],
         file_path=meta["file_path"],
+        language=meta.get("language", "python"),
         summary=meta["summary"],
         impact=meta["impact"],
         root_cause=meta["root_cause"],
@@ -94,14 +110,11 @@ def get_scenario_detail(scenario_id: str) -> Optional[ScenarioDetail]:
         original_code=orig_code,
         fixed_code=fixed_code,
         test_code=test_code,
-        diff=diff
+        diff=diff,
+        unresolved_risks=unresolved_risks
     )
 
 def fetch_github_pr(pr_url: str) -> Dict[str, Any]:
-    """
-    Parses a GitHub pull request URL and fetches PR metadata and diff.
-    Example: https://github.com/owner/repo/pull/123
-    """
     pattern = r"github\.com/([^/]+)/([^/]+)/pull/(\d+)"
     match = re.search(pattern, pr_url)
     if not match:
@@ -113,7 +126,6 @@ def fetch_github_pr(pr_url: str) -> Dict[str, Any]:
         "User-Agent": "ShipSafe-Reviewer/1.0"
     }
 
-    # Fetch PR Metadata
     api_url = f"https://api.github.com/repos/{owner}/{repo}/pulls/{pr_number}"
     resp = requests.get(api_url, headers=headers, timeout=10)
     if resp.status_code != 200:
@@ -121,7 +133,6 @@ def fetch_github_pr(pr_url: str) -> Dict[str, Any]:
 
     pr_data = resp.json()
 
-    # Fetch Diff
     diff_headers = {
         "Accept": "application/vnd.github.v3.diff",
         "User-Agent": "ShipSafe-Reviewer/1.0"
@@ -142,21 +153,19 @@ def fetch_github_pr(pr_url: str) -> Dict[str, Any]:
     }
 
 def analyze_custom_code(code_content: str, filename: str = "solution.py") -> ScenarioDetail:
-    """
-    Heuristic analyzer that detects security/logic flaws in custom or pasted diffs,
-    formulates an evidence-backed finding, proposes a minimal patch, and creates a verification test.
-    """
+    is_ts = filename.endswith(".ts") or filename.endswith(".tsx") or "interface " in code_content or ": string" in code_content
+    is_jwt_or_auth = "jwt" in code_content.lower() or "bearer" in code_content.lower() or "token" in code_content.lower()
     is_missing_auth = ("delete" in code_content or "update" in code_content) and "org_id" not in code_content and "user" in code_content
     is_sql_injection = ("SELECT" in code_content or "WHERE" in code_content) and ("f\"" in code_content or "%s" in code_content or "+" in code_content)
     is_unbounded_discount = ("discount" in code_content or "price" in code_content) and ("min(" not in code_content and "max(" not in code_content)
 
-    if is_missing_auth:
+    if is_ts and is_jwt_or_auth:
+        return get_scenario_detail("ts_jwt_auth")
+    elif is_missing_auth:
         return get_scenario_detail("auth_idor")
     elif is_sql_injection:
         return get_scenario_detail("sql_injection")
     elif is_unbounded_discount:
         return get_scenario_detail("logic_discount")
     else:
-        # Defaults to Clean PR analysis
-        clean_detail = get_scenario_detail("clean_pr")
-        return clean_detail
+        return get_scenario_detail("clean_pr")

@@ -1,0 +1,24 @@
+{
+  "id": "ts_jwt_auth",
+  "title": "TypeScript: Unverified JWT Decode Allows Admin Signature Forgery",
+  "repo_name": "cloud-api/auth-service",
+  "pr_number": 67,
+  "pr_title": "feat(auth): Express middleware for Bearer token validation",
+  "pr_author": "copilot-agent[bot]",
+  "category": "Security & Cryptography",
+  "severity": "CRITICAL",
+  "confidence": 99,
+  "status": "BLOCKED",
+  "file_path": "src/middleware/auth.ts",
+  "language": "typescript",
+  "summary": "AI generated Express authentication middleware decodes JWT payload without validating cryptographic HMAC signature or token expiration.",
+  "impact": "Authentication Bypass & Privilege Escalation (CWE-347): Any unauthenticated attacker can forge a Bearer token with { role: 'admin' } and gain full access to private tenant APIs.",
+  "root_cause": "Handler uses decodeJwt(token) instead of cryptographic verifyJwt(token, secret) signature verification.",
+  "proposed_fix_summary": "Enforce HMAC-SHA256 signature verification and token expiration validation.",
+  "test_file": "tests/auth.test.js",
+  "unresolved_risks": [
+    "Token revocation / blacklist cache lookup is not implemented.",
+    "Refresh token rotation policy must be audited across mobile and web clients.",
+    "Clock skew tolerance between auth server and API gateway is not specified."
+  ]
+}
