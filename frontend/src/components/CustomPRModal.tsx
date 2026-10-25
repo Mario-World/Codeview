@@ -49,13 +49,13 @@ export const CustomPRModal: React.FC<CustomPRModalProps> = ({
       zIndex: 100,
       padding: 20
     }}>
-      <div className="glass-panel" style={{
-        maxWidth: 620,
+      <div className="card" style={{
+        maxWidth: 580,
         width: '100%',
-        padding: 24,
+        padding: 20,
         position: 'relative',
-        boxShadow: '0 20px 50px rgba(0, 0, 0, 0.8), 0 0 30px rgba(99, 102, 241, 0.3)',
-        border: '1px solid rgba(255, 255, 255, 0.15)'
+        boxShadow: '0 20px 40px rgba(0, 0, 0, 0.6)',
+        border: '1px solid var(--border-medium)'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -80,7 +80,7 @@ export const CustomPRModal: React.FC<CustomPRModalProps> = ({
               </p>
             </div>
           </div>
-          <button onClick={onClose} className="btn btn-secondary" style={{ padding: 6, borderRadius: '50%' }}>
+          <button onClick={onClose} className="btn btn-outline" style={{ padding: 6, borderRadius: '50%' }}>
             <X size={16} />
           </button>
         </div>
@@ -158,7 +158,7 @@ export const CustomPRModal: React.FC<CustomPRModalProps> = ({
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
-              <button type="button" onClick={onClose} className="btn btn-secondary">
+              <button type="button" onClick={onClose} className="btn btn-outline">
                 Cancel
               </button>
               <button type="submit" disabled={isLoading || !prUrl.trim()} className="btn btn-primary">
@@ -193,7 +193,7 @@ export const CustomPRModal: React.FC<CustomPRModalProps> = ({
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
-              <button type="button" onClick={onClose} className="btn btn-secondary">
+              <button type="button" onClick={onClose} className="btn btn-outline">
                 Cancel
               </button>
               <button type="submit" disabled={isLoading || !customCode.trim()} className="btn btn-primary">

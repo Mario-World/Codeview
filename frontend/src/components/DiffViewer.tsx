@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Columns, FileCode, Check, Copy, TestTube, Sparkles } from 'lucide-react';
+import { Columns, FileCode, Check, Copy, TestTube } from 'lucide-react';
 import { ScenarioDetail } from '../types';
 
 interface DiffViewerProps {
@@ -22,215 +22,175 @@ export const DiffViewer: React.FC<DiffViewerProps> = ({ scenario }) => {
   const testLines = scenario.test_code.split('\n');
 
   return (
-    <div className="glass-panel" style={{ padding: '20px', marginBottom: 24 }}>
-      {/* Top Controls */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16, flexWrap: 'wrap', gap: 12 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <FileCode size={18} color="#818cf8" />
-          <span style={{ fontSize: '0.92rem', fontWeight: 700, color: '#ffffff' }}>
-            Code Comparison & Minimal Patch
-          </span>
-          <span style={{ fontSize: '0.75rem', color: '#64748b', background: 'rgba(255,255,255,0.05)', padding: '2px 8px', borderRadius: 4 }}>
+    <div className="card" style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
+      {/* Diff Header */}
+      <div style={{
+        padding: '10px 14px',
+        borderBottom: '1px solid var(--border-subtle)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        background: 'rgba(0, 0, 0, 0.2)'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <FileCode size={15} color="var(--accent)" />
+          <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-main)', fontFamily: 'var(--font-mono)' }}>
             {scenario.file_path}
           </span>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          {/* View Mode Buttons */}
-          <div style={{ display: 'flex', background: 'rgba(255,255,255,0.04)', padding: 3, borderRadius: 8, border: '1px solid rgba(255,255,255,0.08)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          {/* View Toggles */}
+          <div style={{ display: 'flex', background: 'rgba(0,0,0,0.3)', padding: 2, borderRadius: 4 }}>
             <button
               onClick={() => setViewMode('split')}
               style={{
-                padding: '4px 10px',
-                borderRadius: 6,
-                fontSize: '0.75rem',
-                fontWeight: 600,
                 border: 'none',
+                background: viewMode === 'split' ? 'var(--bg-surface-elevated)' : 'transparent',
+                color: viewMode === 'split' ? '#ffffff' : 'var(--text-dim)',
+                padding: '3px 8px',
+                borderRadius: 3,
+                fontSize: '0.72rem',
+                fontWeight: 600,
                 cursor: 'pointer',
-                background: viewMode === 'split' ? '#6366f1' : 'transparent',
-                color: viewMode === 'split' ? '#ffffff' : '#94a3b8',
                 display: 'flex',
                 alignItems: 'center',
-                gap: 5
+                gap: 4
               }}
             >
-              <Columns size={13} />
-              <span>Side-by-Side</span>
+              <Columns size={12} />
+              <span>Split</span>
             </button>
 
             <button
               onClick={() => setViewMode('unified')}
               style={{
-                padding: '4px 10px',
-                borderRadius: 6,
-                fontSize: '0.75rem',
-                fontWeight: 600,
                 border: 'none',
+                background: viewMode === 'unified' ? 'var(--bg-surface-elevated)' : 'transparent',
+                color: viewMode === 'unified' ? '#ffffff' : 'var(--text-dim)',
+                padding: '3px 8px',
+                borderRadius: 3,
+                fontSize: '0.72rem',
+                fontWeight: 600,
                 cursor: 'pointer',
-                background: viewMode === 'unified' ? '#6366f1' : 'transparent',
-                color: viewMode === 'unified' ? '#ffffff' : '#94a3b8',
                 display: 'flex',
                 alignItems: 'center',
-                gap: 5
+                gap: 4
               }}
             >
-              <FileCode size={13} />
-              <span>Unified Diff</span>
+              <FileCode size={12} />
+              <span>Unified</span>
             </button>
 
             <button
               onClick={() => setViewMode('test')}
               style={{
-                padding: '4px 10px',
-                borderRadius: 6,
-                fontSize: '0.75rem',
-                fontWeight: 600,
                 border: 'none',
+                background: viewMode === 'test' ? 'var(--bg-surface-elevated)' : 'transparent',
+                color: viewMode === 'test' ? '#ffffff' : 'var(--text-dim)',
+                padding: '3px 8px',
+                borderRadius: 3,
+                fontSize: '0.72rem',
+                fontWeight: 600,
                 cursor: 'pointer',
-                background: viewMode === 'test' ? '#6366f1' : 'transparent',
-                color: viewMode === 'test' ? '#ffffff' : '#94a3b8',
                 display: 'flex',
                 alignItems: 'center',
-                gap: 5
+                gap: 4
               }}
             >
-              <TestTube size={13} />
-              <span>Targeted Pytest File</span>
+              <TestTube size={12} />
+              <span>Pytest File</span>
             </button>
           </div>
 
           <button
             onClick={handleCopyPatch}
-            className="btn btn-secondary"
-            style={{ padding: '6px 12px', fontSize: '0.75rem' }}
+            className="btn btn-outline"
+            style={{ padding: '3px 8px', fontSize: '0.72rem' }}
           >
-            {copied ? <Check size={13} color="#10b981" /> : <Copy size={13} />}
-            <span>{copied ? 'Copied .patch!' : 'Copy Git Patch'}</span>
+            {copied ? <Check size={12} color="var(--color-success)" /> : <Copy size={12} />}
+            <span>{copied ? 'Copied' : 'Copy Patch'}</span>
           </button>
         </div>
       </div>
 
-      {/* Render View Mode */}
-      {viewMode === 'split' && (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
-          {/* Original Column */}
-          <div className="terminal-window">
-            <div className="terminal-header" style={{ borderLeft: '3px solid #f43f5e' }}>
-              <span style={{ fontWeight: 700, color: '#f43f5e' }}>ORIGINAL (Current PR Code)</span>
-              <span>{origLines.length} lines</span>
+      {/* Code Display Area */}
+      <div style={{ flexGrow: 1, overflowY: 'auto', maxHeight: 'calc(100vh - 210px)' }}>
+        {viewMode === 'split' && (
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', height: '100%', minHeight: 460 }}>
+            {/* Original Left Pane */}
+            <div style={{ borderRight: '1px solid var(--border-subtle)', background: '#070a12', overflowX: 'auto' }}>
+              <div style={{ padding: '6px 12px', background: 'rgba(244, 63, 94, 0.08)', borderBottom: '1px solid var(--border-subtle)', fontSize: '0.7rem', fontWeight: 600, color: 'var(--color-danger)' }}>
+                ORIGINAL (Buggy Code in PR)
+              </div>
+              <div className="diff-container" style={{ border: 'none', borderRadius: 0 }}>
+                {origLines.map((line, idx) => {
+                  const lineNum = idx + 1;
+                  const isBuggy = (scenario.id === 'auth_idor' && lineNum >= 25 && lineNum <= 34) ||
+                                  (scenario.id === 'logic_discount' && lineNum >= 22 && lineNum <= 29) ||
+                                  (scenario.id === 'sql_injection' && lineNum >= 27 && lineNum <= 32);
+                  return (
+                    <div key={idx} className={`diff-row ${isBuggy ? 'diff-del' : ''}`}>
+                      <span className="diff-num">{lineNum}</span>
+                      <span className="diff-text">{line}</span>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
-            <div className="terminal-body" style={{ maxHeight: 380, padding: 0 }}>
-              {origLines.map((line, idx) => {
-                const lineNum = idx + 1;
-                // Highlight defect area
-                const isBuggyArea = (scenario.id === 'auth_idor' && lineNum >= 25 && lineNum <= 34) ||
-                                    (scenario.id === 'logic_discount' && lineNum >= 22 && lineNum <= 29) ||
-                                    (scenario.id === 'sql_injection' && lineNum >= 27 && lineNum <= 32);
 
-                return (
-                  <div
-                    key={idx}
-                    className="diff-line"
-                    style={{ background: isBuggyArea ? 'rgba(244, 63, 94, 0.12)' : 'transparent' }}
-                  >
-                    <span className="diff-line-number" style={{ color: isBuggyArea ? '#f43f5e' : undefined }}>
-                      {lineNum}
-                    </span>
-                    <span className="diff-content" style={{ color: isBuggyArea ? '#fecdd3' : '#cbd5e1' }}>
-                      {line}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Patched Column */}
-          <div className="terminal-window">
-            <div className="terminal-header" style={{ borderLeft: '3px solid #10b981' }}>
-              <span style={{ fontWeight: 700, color: '#10b981' }}>PROPOSED PATCH (Verified Candidate)</span>
-              <span>{fixedLines.length} lines</span>
-            </div>
-            <div className="terminal-body" style={{ maxHeight: 380, padding: 0 }}>
-              {fixedLines.map((line, idx) => {
-                const lineNum = idx + 1;
-                const isFixedArea = (scenario.id === 'auth_idor' && lineNum >= 25 && lineNum <= 36) ||
-                                    (scenario.id === 'logic_discount' && lineNum >= 22 && lineNum <= 32) ||
-                                    (scenario.id === 'sql_injection' && lineNum >= 27 && lineNum <= 33);
-
-                return (
-                  <div
-                    key={idx}
-                    className="diff-line"
-                    style={{ background: isFixedArea ? 'rgba(16, 185, 129, 0.12)' : 'transparent' }}
-                  >
-                    <span className="diff-line-number" style={{ color: isFixedArea ? '#10b981' : undefined }}>
-                      {lineNum}
-                    </span>
-                    <span className="diff-content" style={{ color: isFixedArea ? '#6ee7b7' : '#cbd5e1' }}>
-                      {line}
-                    </span>
-                  </div>
-                );
-              })}
+            {/* Patched Right Pane */}
+            <div style={{ background: '#070a12', overflowX: 'auto' }}>
+              <div style={{ padding: '6px 12px', background: 'rgba(16, 185, 129, 0.08)', borderBottom: '1px solid var(--border-subtle)', fontSize: '0.7rem', fontWeight: 600, color: 'var(--color-success)' }}>
+                PROPOSED FIX (Minimal Verified Patch)
+              </div>
+              <div className="diff-container" style={{ border: 'none', borderRadius: 0 }}>
+                {fixedLines.map((line, idx) => {
+                  const lineNum = idx + 1;
+                  const isFixed = (scenario.id === 'auth_idor' && lineNum >= 25 && lineNum <= 36) ||
+                                  (scenario.id === 'logic_discount' && lineNum >= 22 && lineNum <= 32) ||
+                                  (scenario.id === 'sql_injection' && lineNum >= 27 && lineNum <= 33);
+                  return (
+                    <div key={idx} className={`diff-row ${isFixed ? 'diff-add' : ''}`}>
+                      <span className="diff-num">{lineNum}</span>
+                      <span className="diff-text">{line}</span>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {viewMode === 'unified' && (
-        <div className="terminal-window">
-          <div className="terminal-header">
-            <span>UNIFIED DIFF (git format-patch compatible)</span>
-            <span>{diffLines.length} diff lines</span>
-          </div>
-          <div className="terminal-body" style={{ maxHeight: 380, padding: 0 }}>
+        {viewMode === 'unified' && (
+          <div className="diff-container" style={{ border: 'none', borderRadius: 0, padding: 8 }}>
             {diffLines.map((line, idx) => {
               const isAdd = line.startsWith('+') && !line.startsWith('+++');
-              const isRem = line.startsWith('-') && !line.startsWith('---');
-              const isMeta = line.startsWith('@@') || line.startsWith('diff') || line.startsWith('index');
-
-              let lineClass = 'diff-line';
-              if (isAdd) lineClass += ' diff-added';
-              if (isRem) lineClass += ' diff-removed';
-
+              const isDel = line.startsWith('-') && !line.startsWith('---');
               return (
-                <div key={idx} className={lineClass}>
-                  <span className="diff-line-number">{idx + 1}</span>
-                  <span
-                    className="diff-content"
-                    style={{
-                      color: isMeta ? '#818cf8' : undefined,
-                      fontWeight: isMeta ? 700 : undefined,
-                    }}
-                  >
-                    {line}
-                  </span>
+                <div key={idx} className={`diff-row ${isAdd ? 'diff-add' : isDel ? 'diff-del' : ''}`}>
+                  <span className="diff-num">{idx + 1}</span>
+                  <span className="diff-text">{line}</span>
                 </div>
               );
             })}
           </div>
-        </div>
-      )}
+        )}
 
-      {viewMode === 'test' && (
-        <div className="terminal-window">
-          <div className="terminal-header" style={{ borderLeft: '3px solid #6366f1' }}>
-            <span style={{ fontWeight: 700, color: '#818cf8' }}>
-              TARGETED VERIFICATION TEST ({scenario.test_file})
-            </span>
-            <span>{testLines.length} lines</span>
-          </div>
-          <div className="terminal-body" style={{ maxHeight: 380, padding: 0 }}>
+        {viewMode === 'test' && (
+          <div className="diff-container" style={{ border: 'none', borderRadius: 0, padding: 8 }}>
+            <div style={{ padding: '6px 10px', color: 'var(--text-dim)', fontSize: '0.72rem', borderBottom: '1px solid var(--border-subtle)', marginBottom: 6 }}>
+              Targeted Sandbox Test: <code>{scenario.test_file}</code>
+            </div>
             {testLines.map((line, idx) => (
-              <div key={idx} className="diff-line">
-                <span className="diff-line-number">{idx + 1}</span>
-                <span className="diff-content" style={{ color: '#cbd5e1' }}>{line}</span>
+              <div key={idx} className="diff-row">
+                <span className="diff-num">{idx + 1}</span>
+                <span className="diff-text" style={{ color: '#cbd5e1' }}>{line}</span>
               </div>
             ))}
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };

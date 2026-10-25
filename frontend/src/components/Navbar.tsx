@@ -1,5 +1,5 @@
 import React from 'react';
-import { ShieldCheck, GitPullRequest, AlertTriangle, CheckCircle2, ShieldAlert, Sparkles, Terminal } from 'lucide-react';
+import { ShieldCheck, GitPullRequest, CheckCircle2, AlertTriangle, ShieldAlert } from 'lucide-react';
 import { ScenarioSummary } from '../types';
 
 interface NavbarProps {
@@ -16,116 +16,104 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenCustomModal,
 }) => {
   return (
-    <header style={{
-      background: 'rgba(10, 14, 23, 0.85)',
-      backdropFilter: 'blur(20px)',
-      borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-      position: 'sticky',
-      top: 0,
-      zIndex: 50,
-      padding: '12px 24px',
+    <nav style={{
+      background: 'var(--bg-surface)',
+      borderBottom: '1px solid var(--border-subtle)',
+      padding: '0 20px',
+      height: 52,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
     }}>
-      <div style={{
-        maxWidth: 1400,
-        margin: '0 auto',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        flexWrap: 'wrap',
-        gap: 16,
-      }}>
-        {/* Logo and Tagline */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-          <div style={{
-            width: 42,
-            height: 42,
-            borderRadius: 10,
-            background: 'linear-gradient(135deg, #10b981 0%, #6366f1 100%)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            boxShadow: '0 0 20px rgba(16, 185, 129, 0.35)',
-          }}>
-            <ShieldCheck size={26} color="#ffffff" strokeWidth={2.4} />
-          </div>
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span style={{ fontSize: '1.25rem', fontWeight: 800, letterSpacing: '-0.02em', color: '#ffffff' }}>
-                Ship<span style={{ color: '#10b981' }}>Safe</span>
-              </span>
-              <span style={{
-                background: 'rgba(99, 102, 241, 0.15)',
-                color: '#818cf8',
-                border: '1px solid rgba(99, 102, 241, 0.3)',
-                padding: '2px 8px',
-                borderRadius: 9999,
-                fontSize: '0.68rem',
-                fontWeight: 700,
-                textTransform: 'uppercase',
-                letterSpacing: '0.05em'
-              }}>
-                v1.0 Ready
-              </span>
-            </div>
-            <p style={{ fontSize: '0.78rem', color: '#94a3b8', margin: 0 }}>
-              AI Code Review for Production Readiness · Proves Every Fix
-            </p>
-          </div>
+      {/* Brand */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        <div style={{
+          width: 28,
+          height: 28,
+          borderRadius: 6,
+          background: 'var(--color-success)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          color: '#ffffff'
+        }}>
+          <ShieldCheck size={18} strokeWidth={2.5} />
         </div>
-
-        {/* Demo Scenarios Quick Pickers */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-          <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', marginRight: 4 }}>
-            Demo PRs:
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
+          <span style={{ fontSize: '1rem', fontWeight: 700, color: '#ffffff', letterSpacing: '-0.02em' }}>
+            Ship<span style={{ color: 'var(--color-success)' }}>Safe</span>
           </span>
-
-          {scenarios.map((s) => {
-            const isActive = s.id === activeScenarioId;
-            let icon = <AlertTriangle size={14} color="#f43f5e" />;
-            if (s.id === 'logic_discount') icon = <AlertTriangle size={14} color="#f97316" />;
-            if (s.id === 'clean_pr') icon = <CheckCircle2 size={14} color="#10b981" />;
-
-            return (
-              <button
-                key={s.id}
-                onClick={() => onSelectScenario(s.id)}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 6,
-                  padding: '6px 12px',
-                  borderRadius: 8,
-                  fontSize: '0.8rem',
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  border: isActive 
-                    ? '1px solid #6366f1' 
-                    : '1px solid rgba(255, 255, 255, 0.08)',
-                  background: isActive 
-                    ? 'rgba(99, 102, 241, 0.2)' 
-                    : 'rgba(255, 255, 255, 0.03)',
-                  color: isActive ? '#ffffff' : '#94a3b8',
-                  transition: 'all 0.15s ease',
-                  boxShadow: isActive ? '0 0 12px rgba(99, 102, 241, 0.3)' : 'none',
-                }}
-              >
-                {icon}
-                <span>{s.id === 'auth_idor' ? 'Auth IDOR' : s.id === 'logic_discount' ? 'Pricing Logic' : s.id === 'sql_injection' ? 'SQL Injection' : 'Clean PR'}</span>
-                <span style={{ fontSize: '0.7rem', opacity: 0.6 }}>#{s.pr_number}</span>
-              </button>
-            );
-          })}
-
-          <button
-            onClick={onOpenCustomModal}
-            className="btn btn-secondary"
-            style={{ padding: '6px 12px', fontSize: '0.8rem' }}
-          >
-            <GitPullRequest size={14} />
-            <span>Custom PR / Diff</span>
-          </button>
+          <span style={{ fontSize: '0.72rem', color: 'var(--text-dim)', fontWeight: 500 }}>
+            AI PR Reviewer
+          </span>
         </div>
       </div>
-    </header>
+
+      {/* Clean Scenario Selector Tabs */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        background: 'rgba(0, 0, 0, 0.3)',
+        borderRadius: 6,
+        padding: 2,
+        border: '1px solid var(--border-subtle)'
+      }}>
+        {scenarios.map((s) => {
+          const isActive = s.id === activeScenarioId;
+          const label = s.id === 'auth_idor' ? 'Auth IDOR' : s.id === 'logic_discount' ? 'Pricing Logic' : s.id === 'sql_injection' ? 'SQL Injection' : 'Clean PR';
+          return (
+            <button
+              key={s.id}
+              onClick={() => onSelectScenario(s.id)}
+              style={{
+                border: 'none',
+                background: isActive ? 'var(--bg-surface-elevated)' : 'transparent',
+                color: isActive ? '#ffffff' : 'var(--text-muted)',
+                padding: '5px 12px',
+                borderRadius: 4,
+                fontSize: '0.78rem',
+                fontWeight: isActive ? 600 : 500,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 5,
+                transition: 'all 0.15s ease',
+              }}
+            >
+              <span>{label}</span>
+              <span style={{ fontSize: '0.68rem', opacity: 0.6 }}>#{s.pr_number}</span>
+            </button>
+          );
+        })}
+
+        <button
+          onClick={onOpenCustomModal}
+          style={{
+            border: 'none',
+            background: 'transparent',
+            color: 'var(--text-dim)',
+            padding: '5px 10px',
+            borderRadius: 4,
+            fontSize: '0.78rem',
+            fontWeight: 500,
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 4
+          }}
+          title="Analyze Custom PR"
+        >
+          <GitPullRequest size={12} />
+          <span>+ Custom</span>
+        </button>
+      </div>
+
+      {/* Principles Link / Clean Pill */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>
+          Prove Fixes Before Shipping
+        </span>
+      </div>
+    </nav>
   );
 };
